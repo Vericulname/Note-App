@@ -7,6 +7,7 @@ import 'bootstrap/boot.dart';
 
 /// Main entry point for the application.
 void main() async {
+  
   await Nylo.init(
     setup: Boot.nylo,
     setupFinished: Boot.finished,

@@ -25,7 +25,7 @@ class Boot {
 
   /// This method is called after Nylo is initialized.
   static Future<void> finished(Nylo nylo) async {
-     await bootFinished(nylo, providers);
+    await bootFinished(nylo, providers);
 
     runApp(Main(nylo));
   }

@@ -1,3 +1,6 @@
+import 'package:flutter_app/app/events/note_delete_event.dart';
+import 'package:flutter_app/app/models/note.dart';
+import 'package:flutter_app/config/enum.dart';
 import 'package:flutter_app/resources/pages/notecreate_page.dart';
 import 'package:flutter_app/resources/widgets/list_style_widget.dart';
 import 'package:flutter_app/resources/widgets/note_list_widget.dart';
@@ -51,7 +54,7 @@ class _HomePageState extends NyPage<HomePage> {
   Widget view(BuildContext context) {
     TextEditingController searchController = TextEditingController();
     return Scaffold(
-      //dan don
+        //dan don
         appBar: deleteMode
             ? AppBar(
                 title: Text("Hãy chọn ghi chú để xoá").titleLarge(fontSize: 20),
@@ -60,13 +63,19 @@ class _HomePageState extends NyPage<HomePage> {
                       onTap: () {
                         setState(() {
                           deleteMode = false;
+
+                          updateState<NoteList>(NoteList.state,
+                              data: {"flag": NoteListFlag.deleteMode});
                         });
                       },
                       child: Icon(Icons.close)),
                   InkWell(
                       onTap: () {
                         setState(() {
+                          event<NoteDeleteEvent>();
+
                           deleteMode = false;
+                          
                         });
                       },
                       child: Icon(Icons.done))
@@ -80,6 +89,8 @@ class _HomePageState extends NyPage<HomePage> {
                     onTap: () {
                       setState(() {
                         deleteMode = true;
+                        updateState<NoteList>(NoteList.state,
+                            data: {"flag": NoteListFlag.deleteMode});
                       });
                     },
                     child: Text(
@@ -110,9 +121,13 @@ class _HomePageState extends NyPage<HomePage> {
                 backgroundColor: Colors.grey.withOpacity(0.4),
                 hintText: "tìm kiếm",
                 prefixIcon: Icon(Icons.search),
+                onChanged: (value) {
+                  updateState<NoteList>(NoteList.state,
+                      data: {"flag": NoteListFlag.SearchNote, "title": value});
+                },
               ),
-              ListStyle(),
-              NoteList(),
+              Align(alignment: AlignmentGeometry.topLeft, child: ListStyle()),
+              Expanded(child: NoteList()),
             ],
           ),
         ));

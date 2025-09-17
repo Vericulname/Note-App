@@ -8,19 +8,21 @@ class Note extends Model {
 
   String? title;
   String? content;
-  DateTime? dateTime;
+  DateTime? dateCreate;
+  DateTime? dateUpdate;
 
   Note({
     this.title,
     this.content,
-    this.dateTime,
+    this.dateCreate,
+    this.dateUpdate
   }) : super(key: key);
-
 
   Note.fromJson(data) : super(key: key) {
     title = data["title"];
     content = data["content"];
-    dateTime = DateTime.fromMillisecondsSinceEpoch(data["dateTime"]);
+    dateCreate = DateTime.fromMillisecondsSinceEpoch(data["dateCreate"]);
+    dateUpdate = DateTime.fromMillisecondsSinceEpoch(data["dateUpdate"]);
   }
 
   @override
@@ -28,7 +30,8 @@ class Note extends Model {
     return {
       "title": title,
       "content": content,
-      "dateTime": dateTime?.millisecondsSinceEpoch
+      "dateCreate": dateCreate?.millisecondsSinceEpoch,
+      "dateUpdate": dateUpdate?.millisecondsSinceEpoch
     };
   }
 }

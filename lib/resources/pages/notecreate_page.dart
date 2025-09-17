@@ -128,7 +128,7 @@ class _NotecreatePageState extends NyPage<NotecreatePage> {
           title: title,
           content: content,
           dateCreate: editMode ? note!.dateCreate : date,
-          dateUpdate: editMode ? note!.dateUpdate : date);
+          dateUpdate: date);
       editMode
           ? event<NoteModifyEvent>(data: {"note": noteToSaveOrModify})
           : event<NoteCreateEvent>(data: {"note": noteToSaveOrModify});

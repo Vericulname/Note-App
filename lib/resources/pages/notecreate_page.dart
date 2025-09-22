@@ -41,18 +41,14 @@ class _NotecreatePageState extends NyPage<NotecreatePage> {
           //tạo 1 note mới để đưa đi lưu/update
           InkWell(
               onTap: () {
-                String title = titleController.text;
                 String content = contentController.text;
 
-                if (title.isEmpty) {
-                  title = content;
-                }
-                if (title.isNotEmpty && content.isNotEmpty && hasChanged) {
+                if (content.isNotEmpty && hasChanged) {
                   _createOrModifyNote(hasChanged, editMode, note);
                   hasChanged = false;
                 } else {
                   hasChanged = false;
-                  showToastOops(description: "tiêu đề và nội dung rỗng");
+                  showToastOops(description: "nội dung rỗng");
                 }
               },
               child: Icon(Icons.done))
@@ -116,11 +112,13 @@ class _NotecreatePageState extends NyPage<NotecreatePage> {
   }
 
   void _createOrModifyNote(bool hasChanged, bool editMode, Note? note) {
-    if (titleController.text.isNotEmpty &&
-        titleController.text.isNotEmpty &&
-        hasChanged) {
+    if (contentController.text.isNotEmpty && hasChanged) {
       String title = titleController.text;
       String content = contentController.text;
+
+      if (title.isEmpty) {
+        title = content;
+      }
 
       DateTime date = DateTime.now();
 

@@ -60,27 +60,34 @@ class _HomePageState extends NyPage<HomePage> {
                 title: Text("Hãy chọn ghi chú để xoá").titleLarge(fontSize: 20),
                 actions: [
                   InkWell(
-                      onTap: () {
-                        setState(() {
-                          deleteMode = false;
+                    onTap: () {
+                      setState(() {
+                        deleteMode = false;
 
-                          updateState<NoteList>(NoteList.state,
-                              data: {"flag": NoteListFlag.deleteMode});
-                        });
-                      },
-                      child: Icon(Icons.close)),
+                        updateState<NoteList>(NoteList.state,
+                            data: {"flag": NoteListFlag.deleteMode});
+                      });
+                    },
+                    child: Icon(
+                      Icons.close,
+                      size: 30,
+                    ),
+                  ),
+                  Spacing.horizontal(20.0),
                   InkWell(
                       onTap: () {
                         setState(() {
-                          event<NoteDeleteEvent>();
+                          stateAction("delete_note", state: NoteList.state);
 
                           deleteMode = false;
-                          
                         });
                       },
-                      child: Icon(Icons.done))
+                      child: Icon(
+                        Icons.done,
+                        size: 30,
+                      ))
                 ],
-                actionsPadding: EdgeInsets.only(right: 10.0),
+                actionsPadding: EdgeInsets.only(right: 20.0),
               )
             : AppBar(
                 title: Text("Ghi chú").titleLarge(fontSize: 40),
@@ -102,12 +109,6 @@ class _HomePageState extends NyPage<HomePage> {
               ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            // showToastSuccess(title: "Hello 👋", description: "Welcome to Nylo");
-
-            // Uncomment the code below to send a push notifications
-            // await PushNotification.sendNotification(
-            //     title: "Hello 👋", body: "Welcome to Nylo",
-            // );
             routeTo(NotecreatePage.path);
           },
           child: const Icon(Icons.add),

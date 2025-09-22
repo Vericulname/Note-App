@@ -32,7 +32,7 @@ class AppProvider implements NyProvider {
     nylo.addFormStyle(formStyle);
     nylo.addAuthKey(Keys.auth);
     await nylo.syncKeys(Keys.syncedOnBoot);
-    // nylo.monitorAppUsage();
+
 
     // Optional
     // nylo.showDateTimeInLogs(); // Show date time in logs

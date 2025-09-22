@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/app/events/note_delete_event.dart';
 import 'package:flutter_app/app/models/note.dart';
 import 'package:flutter_app/config/decoders.dart';
 import 'package:flutter_app/config/enum.dart';
@@ -12,18 +13,17 @@ import 'package:nylo_framework/nylo_framework.dart';
 //TODO: doc 1 đằng code 1 lẻo ??? ưtf
 
 class NoteList extends StatefulWidget {
-  const NoteList({super.key});
+  NoteList({super.key});
   static String state = "noteList";
-
-  static List<Note> deleteNotes = [];
 
   @override
   _NoteListState createState() => _NoteListState();
 }
 
 class _NoteListState extends NyState<NoteList> {
-  List<Note> notes = [];
-  List<Note> filterednotes = [];
+  List<Note> _notes = [];
+  List<Note> _filterednotes = [];
+  List<Note> _deleteNotes = [];
 
   bool deleteMode = false;
   bool isGribView = false;
@@ -32,9 +32,22 @@ class _NoteListState extends NyState<NoteList> {
     stateName = NoteList.state;
   }
 
+  //vi 1 ly do nao day stateUpdate chay trc stateAction
+  @override
+  Map<String, Function> get stateActions => {
+        "delete_note": () {
+          if (_deleteNotes.isNotEmpty) {
+            event<NoteDeleteEvent>(data: {"notes": _deleteNotes});
+            _deleteNotes = [];
+            setState(() {});
+          }
+          deleteMode = false;
+        },
+      };
+
   @override
   stateUpdated(data) async {
-    notes = await NyStorage.readCollection<Note>(Keys.note,
+    _notes = await NyStorage.readCollection<Note>(Keys.note,
         modelDecoders: modelDecoders);
 
     //dai qua
@@ -50,15 +63,15 @@ class _NoteListState extends NyState<NoteList> {
         break;
 
       case NoteListFlag.SearchNote:
-        filterednotes = notes
+        _filterednotes = _notes
             .where((e) =>
                 e.title!.toLowerCase().contains(data["title"].toLowerCase()))
             .toList();
       case NoteListFlag.updateState:
-        filterednotes = List.from(notes);
+        _filterednotes = List.from(_notes);
         break;
       default:
-        print("có gì đó lỗi r");
+        print("NoteListFlag = null hoặc có gì đó lỗi r");
         break;
     }
 
@@ -67,11 +80,11 @@ class _NoteListState extends NyState<NoteList> {
 
   @override
   get init => () async {
-        notes = await NyStorage.readCollection<Note>(Keys.note,
+        _notes = await NyStorage.readCollection<Note>(Keys.note,
             modelDecoders: modelDecoders);
 
         setState(() {
-          filterednotes = List.from(notes);
+          _filterednotes = List.from(_notes);
         });
       };
 
@@ -81,8 +94,7 @@ class _NoteListState extends NyState<NoteList> {
         ? NyListView.grid(
             shrinkWrap: true,
             crossAxisCount: 2,
-            empty: Center(
-                child: Text("Danh sách trống, hãy bấm + để thêm ghi chú mới")),
+            empty: _createListEmptyWiget(),
             child: (
               context,
               dynamic data,
@@ -93,66 +105,27 @@ class _NoteListState extends NyState<NoteList> {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8.0),
                     color: Colors.grey.withOpacity(0.2)),
-                child: ListTile(
-                  onTap: () => routeTo(NotecreatePage.path, data: note),
-                  subtitle:
-                      Text(note.dateCreate.toDateStringUK()!).bodyMedium(),
-                  title: Text(note.title!),
-                  trailing: deleteMode
-                      ? Checkbox(
-                          value: NoteList.deleteNotes.contains(note),
-                          onChanged: (value) {
-                            setState(() {
-                              if (value!) {
-                                NoteList.deleteNotes.add(note);
-                              } else {
-                                NoteList.deleteNotes
-                                    .removeWhere((val) => val == note);
-                              }
-                            });
-                          },
-                        )
-                      : null,
-                ),
+                child: _createNoteListTile(note),
               );
             },
-            data: () async {
-              return filterednotes.map((e) {
+            data: () {
+              return _filterednotes.map((e) {
                 return {"note": e};
               }).toList();
             },
           )
         : NyListView.separated(
             shrinkWrap: true,
-            empty: Center(
-                child: Text("Danh sách trống, hãy bấm + để thêm ghi chú mới")),
+            empty: _createListEmptyWiget(),
             child: (
               context,
               data,
             ) {
               Note note = data['note'];
-              return ListTile(
-                onTap: () => routeTo(NotecreatePage.path, data: note),
-                leading: deleteMode
-                    ? Checkbox(
-                        value: NoteList.deleteNotes.contains(note),
-                        onChanged: (value) {
-                          if (value!) {
-                            NoteList.deleteNotes.add(note);
-                          } else {
-                            NoteList.deleteNotes
-                                .removeWhere((val) => val == note);
-                          }
-                          reboot();
-                        },
-                      )
-                    : null,
-                title: Text(note.title!),
-                trailing: Text(note.dateCreate.toDateStringUK()!).bodyMedium(),
-              );
+              return _createNoteListTile(note);
             },
             data: () {
-              return filterednotes.map((e) {
+              return _filterednotes.map((e) {
                 return {"note": e};
               }).toList();
             },
@@ -162,5 +135,39 @@ class _NoteListState extends NyState<NoteList> {
               );
             },
           );
+  }
+
+  ListTile _createNoteListTile(Note note) {
+    return ListTile(
+      onTap: () => routeTo(NotecreatePage.path, data: note),
+      subtitle: Text(note.dateCreate.toDateStringUK()!).bodyMedium(),
+      title: Text(note.title!),
+      trailing: deleteMode
+          ? Checkbox(
+              value: _deleteNotes.contains(note),
+              onChanged: (value) {
+                setState(() {
+                  if (value!) {
+                    _deleteNotes.add(note);
+                  } else {
+                    _deleteNotes.removeWhere((val) => val == note);
+                  }
+                });
+              },
+            )
+          : null,
+    );
+  }
+}
+
+class _createListEmptyWiget extends StatelessWidget {
+  const _createListEmptyWiget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+        child: Text("Danh sách trống, hãy bấm + để thêm ghi chú mới"));
   }
 }

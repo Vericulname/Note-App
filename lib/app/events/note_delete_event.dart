@@ -15,15 +15,15 @@ class NoteDeleteEvent implements NyEvent {
 class DefaultListener extends NyListener {
   @override
   handle(dynamic event) async {
-    
+    List<Note> deleteNotes = event["notes"];
+
     await NyStorage.deleteFromCollectionWhere<Note>((value) {
-      return NoteList.deleteNotes.any((note) =>
+      return deleteNotes.any((note) =>
           note.dateCreate?.millisecondsSinceEpoch ==
           value.dateCreate?.millisecondsSinceEpoch);
     }, key: Keys.note);
 
-    NoteList.deleteNotes.clear();
     updateState<NoteList>(NoteList.state,
-        data: {"flag": NoteListFlag.deleteMode});
+        data: {"flag": NoteListFlag.updateState});
   }
 }

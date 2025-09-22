@@ -14,10 +14,10 @@ class _NotFoundPageState extends NyState<NotFoundPage> {
   @override
   Widget view(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Not Found")),
+      appBar: AppBar(title: Text("Không thấy")),
       body: SafeArea(
         child: Center(
-          child: Text("Page not found"),
+          child: Text("Không tìm thấy trang x.x, lỗi gì rồi"),
         ),
       ),
     );
